@@ -1,0 +1,157 @@
+
+
+λ kubectl create namespace testing --dry-run=server
+namespace/testing created (server dry run)
+
+λ kubectl create namespace testing
+namespace/testing created
+
+
+λ kubectl create deployment cheddar --image=errm/cheese:cheddar -n testing
+deployment.apps/cheddar created
+
+λ kubectl create deployment stilton --image=errm/cheese:stilton -n testing
+deployment.apps/stilton created
+
+λ kubectl create deployment wensleydale --image=errm/cheese:wensleydale -n testing
+deployment.apps/wensleydale created
+
+λ kubectl expose deployment cheddar --port=80 -n testing
+service/cheddar exposed
+
+λ kubectl expose deployment stilton --port=80 -n testing
+service/stilton exposed
+
+λ kubectl expose deployment wensleydale --port=80 -n testing
+service/wensleydale exposed
+
+
+λ curl -O https://k8smastery.com/ingress.yaml
+
+λ code ingress.yaml
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cheddar
+spec:
+  rules:
+  - host: cheddar.127.0.0.1.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: cheddar
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stilton
+spec:
+  rules:
+  - host: stilton.127.0.0.1.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: stilton
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wensleydale
+spec:
+  rules:
+  - host: wensleydale.127.0.0.1.nip.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: wensleydale
+            port:
+              number: 80
+---
+
+
+λ kubectl apply -f ingress.yaml -n testing
+ingress.networking.k8s.io/cheddar created
+ingress.networking.k8s.io/stilton created
+ingress.networking.k8s.io/wensleydale created
+
+λ kubectl get ingress -n testing
+NAME          CLASS    HOSTS                          ADDRESS   PORTS   AGE
+cheddar       <none>   cheddar.127.0.0.1.nip.io                 80      8m
+stilton       <none>   stilton.127.0.0.1.nip.io                 80      8m
+wensleydale   <none>   wensleydale.127.0.0.1.nip.io             80      8m
+
+
+λ curl -O https://k8smastery.com/ic-traefik-lb.yaml
+
+λ curl -O https://k8smastery.com/ic-traefik-lb.yaml
+λ code ic-traefik-lb.yaml
+
+*Modificar la version de v2 a v2.5.0
+
+[...]
+containers:
+- image: traefik:v2.5.0
+
+λ kubectl apply -f ic-traefik-lb.yaml
+serviceaccount/traefik-ingress-controller created
+daemonset.apps/traefik-ingress-controller created
+service/traefik-ingress-service created
+clusterrole.rbac.authorization.k8s.io/traefik-ingress-controller created
+clusterrolebinding.rbac.authorization.k8s.io/traefik-ingress-controller created
+
+
+*Deberiamos poder acceder a:
+
+http://localhost:8080/
+http://cheddar.127.0.0.1.nip.io/
+http://stilton.127.0.0.1.nip.io/
+http://wensleydale.127.0.0.1.nip.io/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
